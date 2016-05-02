@@ -4,7 +4,7 @@
   <groupId>mp.app</groupId>
   <artifactId>BasketPricer</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>BasketPricer</name>
   <url>https://github.com/polrolni/BasketPricer</url>
   <dependencies>
@@ -30,4 +30,7 @@
       </plugins>
     </pluginManagement>
   </build>
+  <properties>
+  	<exec.mainClass>mp.app.BasketPricer</exec.mainClass>
+  </properties>
 </project>
