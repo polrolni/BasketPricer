@@ -2,9 +2,9 @@ BasketPricer
 ============
 
 Test project to experiment with following functionalities:
-* Java 8 lambdas ans streams, multithreading via parallel streams
+* Java 8 lambdas and streams, multithreading via parallel streams
 * Java watcher service (needed for Java OCP certification, but not recommended for productive env)
-* Inter-JVM synchronization by using nio channel locks
+* Synchronization between JVMs by using nio channel locks
 * Yahoo finance market feed api
 
 ## Installation
