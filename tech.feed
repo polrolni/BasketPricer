@@ -1,14 +1,14 @@
 ################################	
 # Market Data File					
-# Source: YahooFeed
-# Timestamp: 2016-05-02T00:33:09.181
+# Origin: YahooFeed
+# Timestamp: 2016-05-02T18:00:46.444
 #									
 # Syntax: quote_name quote_value	
 ################################ 	
 
-PYPL       39.18000
-GOOGL      707.88000
-PLCM       11.95000
-EBAY       24.43000
+PYPL       38.90010
+GOOGL      708.62000
+PLCM       11.95500
+EBAY       24.36000
 nonexisting NaN
-CY         9.03000
+CY         9.35000

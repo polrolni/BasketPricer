@@ -1,14 +1,15 @@
 package mp.app.marketdata;
 
-/*
- * Representation of quote values (as of now price value only).
+/**
+ * Representation of quote values.
+ * As of now only price is supported.
  */
 public class QuoteValue {
 
 	String name;
 	
 	double price;
-		
+	
 	public QuoteValue(String name, double price) {
 		this.name = name;
 		this.price = price;
@@ -29,13 +30,15 @@ public class QuoteValue {
 	}
 
 	/**
+	 * Parsing logic to parse single quote
+	 * 
 	 * Syntax: quote_name value
 	 * 
 	 * @param str	string representation of a quote
 	 * @return		quote value instance 
 	 * @throws Exception	when parsing failed
 	 */
-	public static QuoteValue parse(String str) throws Exception {
+	public static QuoteValue parse(String str) {
 		String[] ts = str.split("\\s+");
 		String name = ts[0];
 		double price;

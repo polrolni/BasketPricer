@@ -1,0 +1,14 @@
+################################ 
+# Market Data File
+# Source: local grocery store
+# 
+# Syntax: quote_name quote_value
+################################ 
+
+FRUIT.BANA	3.5
+FRUIT.ORAN	2.99
+FRUIT.AAPL	92.77 // :( as of 29.04
+FRUIT.LEMO	1.59
+nonexistent for test purposes
+FRUIT.PEAC	2.72
+ 

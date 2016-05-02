@@ -2,8 +2,6 @@ package mp.app;
 
 /**
  * Resembles an asset in basket
- * 
- * @author polrolni
  */
 public class Asset {
 	
@@ -12,7 +10,14 @@ public class Asset {
 	String quoteName;
 		
 	double quantity;
-		
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param name	asset's name
+	 * @param quoteName	mapping to a quote name in market data 
+	 * @param quantity	number of assets of that type in basket
+	 */
 	public Asset(String name, String quoteName, double quantity) {
 		this.name = name;
 		this.quoteName = quoteName;

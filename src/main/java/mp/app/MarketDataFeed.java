@@ -2,16 +2,10 @@ package mp.app;
 
 import static java.util.stream.Collectors.toCollection;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,34 +18,38 @@ import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import mp.app.marketdata.MarketData;
 
 /**
- * Uses file-backed market data definition and storage
+ * Market data feed is supposed to fetch newest 
+ * market data and store them in a file.
+ * 
+ * The feed using the existing feed file 
+ * as source of information which data should be 
+ * requested from market data provider. Then, after the
+ * data have been received, they will be persisted in that very file.
  */
 public abstract class MarketDataFeed {
-
-	static final NumberFormat FORMAT;
 	
 	static final String PARAM_FOLLOW = "-follow";
 
 	static final String PARAM_DELAY = "-delay";
-	
-	static {
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols();
-		dfs.setDecimalSeparator('.');
-		dfs.setGroupingSeparator(',');
-		dfs.setNaN("NaN");
-		FORMAT = new DecimalFormat("0.00000", dfs);
-	}
 
+	/**
+	 * Entry point of the execution
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
 	public void execute(String[] args) throws Exception {
 		boolean isFollow = false;
 		int delay = 60;
 		Path mkdata = null;
 
+		/*
+		 * Parsing input parameters
+		 */
 		List<String> list = new ArrayList<>(Arrays.asList(args));
 		isFollow = list.remove(PARAM_FOLLOW);
 		
@@ -84,6 +82,9 @@ public abstract class MarketDataFeed {
 				return;
 			}
 		}
+		/*
+		 * End of parsing input parameters
+		 */
 		
 		if (isFollow) {
 			service(mkdata, delay, System.out);
@@ -92,17 +93,24 @@ public abstract class MarketDataFeed {
 		}
 	}
 	
-	protected void execute(Path path, PrintStream out) throws Exception {
+	/**
+	 * Single execution of a data fetch
+	 * 
+	 * @param path path to input/output file
+	 * @param log	log stream
+	 * @throws Exception
+	 */
+	protected void execute(Path path, PrintStream log) throws Exception {
 		/*
 		 * Display initial information
 		 */
 		LocalDateTime start = LocalDateTime.now();
-		out.println("Fetch starts at " + start.format(DateTimeFormatter.ISO_LOCAL_TIME));
+		log.println("Fetch starts at " + start.format(DateTimeFormatter.ISO_LOCAL_TIME));
 		
 		/*
 		 * Load stock names
 		 */
-		Set<String> set = load(path);
+		Set<String> set = getQuoteNames(path);
 		/*
 		 * Fetch data
 		 */
@@ -111,44 +119,62 @@ public abstract class MarketDataFeed {
 		/*
 		 * Update file
 		 */
-		saveWithLock(path, map);
+		Utils.persistQuoteValuesWithLock(path, map, getClass().getSimpleName());
 		
 		/*
 		 * Display statistics
 		 */
 		LocalDateTime end = LocalDateTime.now();
 		long seconds = Duration.between(start, end).getSeconds();
-		out.println(
+		log.println(
 				"Fetch ends at " + end.format(DateTimeFormatter.ISO_LOCAL_TIME) 
 			+	", duration: " + seconds + "s"
 			+ 	", assets: " + map.size());
-		out.println();
+		log.println();
 	}
-		
-	protected void service(Path path, int delay, PrintStream out) throws Exception {
+	
+	/**
+	 * Provider-dependent logic to execute fetch of market data
+	 * 
+	 * @param names	assets names
+	 * @return	map of asset name - value pairs
+	 * @throws Exception	
+	 */
+	protected abstract Map<String, Double> fetch(Set<String> names) throws Exception;
+
+	/**
+	 * Starts the fetcher in a continuous mode, used scheduled executor to 
+	 * execute the runs.
+	 * 
+	 * @param path	path to input/output file
+	 * @param delay	delay in seconds between executions
+	 * @param log	log console
+	 * @throws Exception
+	 */
+	protected void service(Path path, int delay, PrintStream log) throws Exception {
 		ScheduledExecutorService service = null;
 
-			service = Executors.newSingleThreadScheduledExecutor();
-			service.scheduleWithFixedDelay(
-				() -> { 
-					try { 
-						execute(path, out);
-					} catch (Exception e) {
-						out.println(e);
-					}
-				}, 
-				0, 
-				delay, 
-				TimeUnit.SECONDS);
+		service = Executors.newSingleThreadScheduledExecutor();
+		service.scheduleWithFixedDelay(
+			() -> { 
+				try { 
+					execute(path, log);
+				} catch (Exception e) {
+					log.println(e);
+				}
+			}, 
+			0, 
+			delay, 
+			TimeUnit.SECONDS);
 	}
 
 	/**
 	 * Reuses results file as definition for the stock symbols of interest
 	 * 
-	 * @param path	location of the file defining market data
+	 * @param path	feed file
 	 * @return	set of stock symbols
 	 */
-	protected Set<String> load(Path path) {
+	protected Set<String> getQuoteNames(Path path) {
 		MarketData md = Utils.getMarketDataWithLock(path);
 		return md.getQuotes()
 			.stream()
@@ -156,34 +182,9 @@ public abstract class MarketDataFeed {
 			.collect(toCollection(TreeSet::new));
 	}
 	
-	protected abstract Map<String, Double> fetch(Set<String> names) throws Exception;
-
-	protected void saveWithLock(Path path, Map<String, Double> map) throws IOException {
-		try (
-			FileOutputStream fos = new FileOutputStream(path.toFile(), false);
-			PrintStream out = new PrintStream(fos);
-			FileChannel channel = fos.getChannel();
-		) {
-			channel.lock();
-
-			Stream.of(
-					"################################	"
-				,	"# Market Data File					"
-				, 	"# Source: " + getClass().getSimpleName()
-				,	"# Timestamp: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
-				,	"#									"	
-				,	"# Syntax: quote_name quote_value	"
-				, 	"################################ 	"
-			).forEach(out::println);
-
-			out.println();
-			
-			map.entrySet().stream()
-				.map(MarketDataFeed::renderLine)
-				.forEach(out::println);
-		}
-	}
-	
+	/**
+	 * @return usage information
+	 */
 	protected String getUsage() {
 		return  "Usage: java " + this.getClass().getName() + " [-options]" + " basket_name" + "\n"
 			+	"   or: java " + this.getClass().getName() + " [-options]" + " marketdata_file" + "\n"
@@ -196,10 +197,5 @@ public abstract class MarketDataFeed {
 			+	"   -follow          continuous mode, program run infinitely and periodicaly schedules market data update" + "\n"
 			+	"   -delay <seconds> delay in seconds betweed market data updates (default 60)" + "\n"
 			;
-	}
-
-	static String renderLine(Map.Entry<String, Double> e) {
-		String str = String.format("%-10s %s", e.getKey(), FORMAT.format(e.getValue()));		
-		return str;
 	}
 }
