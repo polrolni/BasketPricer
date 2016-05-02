@@ -22,5 +22,5 @@ Try to modify the `examples/fruits.feed` or `examples/fruits.basket` files, chan
 ##Exemplary valuation of stocks basket with yahoo finance market data update 
 Start pricer
 <pre>java -cp target/BasketPricer-1.0.jar mp.app.BasketPricer -follow examples/tech</pre>
-then start the feed with poll interval 5 seconds
+in other terminal start the feed with poll interval 5 seconds
 <pre>java -cp target/BasketPricer-1.0.jar mp.app.YahooFeed -follow -delay 5 examples/tech</pre>
