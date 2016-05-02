@@ -1,0 +1,12 @@
+################################ 
+# 5 tech portfolio
+# Quantity: number of shares
+#
+# Syntax: quote_name quantity full_name
+################################ 
+
+GOOGL	100	Alphabet Inc.
+CY		200	Cypress Semiconductor Corporation
+PLCM	300	Polycom, Inc.
+PYPL	400	PayPal Holdings, Inc.
+EBAY	500	eBay Inc.
