@@ -7,4 +7,4 @@ Test project to expewriment with java functionalities:
 * Inter-JVM synchronization with usage of nio channel locks
 
 <h2>maven</h2>
-<pre>mvn clean compile test exec:java</pre>
+<pre>mvn clean compile test package</pre>
