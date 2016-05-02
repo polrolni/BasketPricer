@@ -177,13 +177,12 @@ public class BasketPricer {
 	@SuppressWarnings("unchecked")
 	public void startService(Path basketDef, Path marketData, PrintStream out) {		
 		try (WatchService service = FileSystems.getDefault().newWatchService()) {
-			Path bDir = basketDef.toAbsolutePath().getParent();
-			bDir.register(service, ENTRY_CREATE, ENTRY_MODIFY);
-
-			out.println("Watcher service set on directory: " + bDir);
+			Path btDir = basketDef.toAbsolutePath().getParent();
+			btDir.register(service, ENTRY_CREATE, ENTRY_MODIFY);
+			out.println("Watcher service set on directory: " + btDir);
 			
 			Path mdDir = marketData.toAbsolutePath().getParent();
-			if (!Files.isSameFile(bDir, mdDir)) {
+			if (!Files.isSameFile(btDir, mdDir)) {
 				mdDir.register(service, ENTRY_CREATE, ENTRY_MODIFY);
 				out.println("Watcher service set on directory: " + mdDir);
 			}
@@ -192,7 +191,14 @@ public class BasketPricer {
 
 			Predicate<Path> isWatchedFile = p -> {
 				try {
-					return Files.isSameFile(basketDef, p) || Files.isSameFile(marketData, p);
+					// check basket file
+					Path ap = btDir.resolve(p);
+					if (Files.isSameFile(basketDef, ap))
+						return true;
+
+					// check market data file
+					ap = mdDir.resolve(p);
+					return Files.isSameFile(marketData, ap);
 				} catch (Exception e) {
 					return false;
 				}

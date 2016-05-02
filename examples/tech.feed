@@ -5,10 +5,10 @@
 #									
 # Syntax: quote_name quote_value	
 ################################ 	
-
+ 
 PYPL       38.90010
 GOOGL      708.62000
 PLCM       11.95500
 EBAY       24.36000
-nonexisting NaN
-CY         9.35000
+nonexisting NaN 
+CY         9.35000 
