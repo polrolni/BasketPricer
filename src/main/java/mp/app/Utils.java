@@ -142,6 +142,12 @@ public class Utils {
 		}
 	}	
 	
+	/**
+	 * Retrieves basket definition from a file
+	 * 
+	 * @param path	path to basket file
+	 * @return	basket's content or empty set when error occurs
+	 */
 	public static Set<Asset> getBasket(Path path) {
 		try (Stream<String> stream = Files.lines(path)) {
 			return stream
