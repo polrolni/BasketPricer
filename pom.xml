@@ -32,5 +32,6 @@
   </build>
   <properties>
   	<exec.mainClass>mp.app.BasketPricer</exec.mainClass>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
