@@ -11,7 +11,7 @@ Test project to experiment with following functionalities:
 ### maven
 <pre>mvn clean compile test package</pre>
 
-##E xemplary valuation of basket of fruits
+## Exemplary valuation of basket of fruits
 ### valuation of basket of fruits
 <pre>java -cp target/BasketPricer-1.0.jar mp.app.BasketPricer examples/fruits</pre>
 
