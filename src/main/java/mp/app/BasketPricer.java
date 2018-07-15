@@ -4,6 +4,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import static java.util.stream.Collectors.toConcurrentMap;
+import static java.util.function.Function.identity;
 
 import java.io.PrintStream;
 import java.nio.file.FileSystems;
@@ -23,7 +24,6 @@ import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import mp.app.marketdata.MarketData;
@@ -160,7 +160,7 @@ public class BasketPricer {
 		Map<Asset, Double> map = basket
 			.parallelStream()
 			.collect(toConcurrentMap(
-				Function.identity(),
+				identity(),
 				c -> measure.calculate(c, md)));
 		return map;
 	}
@@ -233,12 +233,10 @@ public class BasketPricer {
 	}
 	
 	String renderLine(Map.Entry<Asset, Double> e) {
-		String str = String.format("%-9s %15s", e.getKey().getName(), REPORT_NUMBERS_FORMAT.format(e.getValue()));		
-		return str;
+		return String.format("%-9s %15s", e.getKey().getName(), REPORT_NUMBERS_FORMAT.format(e.getValue()));		
 	}
 	
 	String renderTotals(DoubleSummaryStatistics stats) {
-		String str = String.format("TOTALS    %15s", REPORT_NUMBERS_FORMAT.format(stats.getSum()));
-		return str;
+		return String.format("TOTALS    %15s", REPORT_NUMBERS_FORMAT.format(stats.getSum()));
 	}	
 }

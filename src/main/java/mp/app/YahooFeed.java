@@ -1,5 +1,6 @@
 package mp.app;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
@@ -10,7 +11,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 
 /**
  * Exemplary request url: 
@@ -53,7 +53,7 @@ public class YahooFeed extends MarketDataFeed {
 				.map(q -> "N/A".equals(q) 
 					? Double.NaN 
 					: Double.valueOf(q))
-				.collect(toMap(k -> it.next(), Function.identity()));
+				.collect(toMap(k -> it.next(), identity()));
 			return ret;
 		}
 	}
