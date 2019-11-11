@@ -7,6 +7,9 @@ Test project to experiment with following functionalities:
 * Synchronization between JVMs by using nio channel locks
 * Yahoo finance market feed api
 
+## Download repository
+<pre>git clone https://github.com/polrolni/BasketPricer</pre>
+
 ## Installation
 ### maven
 <pre>mvn clean compile test package</pre>
